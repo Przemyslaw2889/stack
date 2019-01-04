@@ -33,7 +33,7 @@ def get_location_data(location, get_country=False, get_city=False):
         r = requests.get(url)
         result = r.json()['results']
         if not result:
-            return np.nan, np.nan
+            return return_na(get_country, get_city)
 
         coordinates = result[0]["geometry"]["location"]
 
