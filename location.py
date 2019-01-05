@@ -14,13 +14,15 @@ def return_na(get_country, get_city):
         return np.nan, np.nan
 
 
-def get_location_data(location, get_country=False, get_city=False):
-    print(location)
+def get_location_data(location, get_country=False, get_city=False, verbose=False):
     """Returns location data (geographical coordinates and country and city)
     * lattitude, longitude, country, city if get_country and get_city are True
     * lattitude, longitude, country if only get_country is True
     * lattitude, longitude otherwise
     """
+    if verbose:
+        print(location)
+
     if location is np.nan:
         return return_na(get_country, get_city)
     try:
