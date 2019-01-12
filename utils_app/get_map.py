@@ -4,8 +4,24 @@ import numpy as np
 import plotly
 import plotly.plotly as py
 import os
+import matplotlib. pyplot as plt
+from matplotlib import colors
+from matplotlib.colors import LinearSegmentedColormap
 
 users_scifi = pd.read_csv(os.path.join("preprocessed_data", "users_scifi_location.csv"))
+
+def _colormap_to_colorscale(cmap):
+    #function that transforms a matplotlib colormap to a Plotly colorscale
+    return [ [k*0.1, colors.rgb2hex(cmap(k*0.1))] for k in range(11)]
+
+def _colorscale_from_list(alist, name): 
+    # Defines a colormap, and the corresponding Plotly colorscale from the list alist
+    # alist=the list of basic colors
+    # name is the name of the corresponding matplotlib colormap
+    
+    cmap = LinearSegmentedColormap.from_list(name, alist)
+    colorscale=colormap_to_colorscale(cmap)
+    return cmap, colorscale
 
 def get_map():
     with open('api_key.txt') as f:
@@ -51,29 +67,30 @@ def get_map():
     )
 
     return data, layout
-    #return py.iplot(fig, validate=False, filename='d3-world-map' )
 
 
 def get_scatter_map():
-    scl = [0,"rgb(150,0,90)"],[0.125,"rgb(0, 0, 200)"],[0.25,"rgb(0, 25, 255)"],\
-    [0.375,"rgb(0, 152, 255)"],[0.5,"rgb(44, 255, 150)"],[0.625,"rgb(151, 255, 0)"],\
-    [0.75,"rgb(255, 234, 0)"],[0.875,"rgb(255, 111, 0)"],[1,"rgb(255, 0, 0)"]
 
     df = users_scifi.sort_values("Reputation", ascending=True)
+
+    scl = [0,"rgb(150,0,90)"],[0.125,"rgb(0, 0, 200)"],[0.25,"rgb(0, 25, 255)"],\
+        [0.375,"rgb(0, 152, 255)"],[0.5,"rgb(44, 255, 150)"],[0.625,"rgb(151, 255, 0)"],\
+        [0.75,"rgb(255, 234, 0)"],[0.875,"rgb(255, 111, 0)"],[1,"rgb(255, 0, 0)"]
 
     data = [ dict(
         lat = df['lat'],
         lon = df['lon'],
-        text = df['DisplayName'].astype(str) + ' ' + df['Reputation'].astype(str),
+        text = df['DisplayName'].astype(str) + ', ' + df['Reputation'].astype(str),
         marker = dict(
-            color = df['Reputation'],
+            color = df['Reputation'].sort_values(ascending=True),
             colorscale = scl,
+            autocolorscale = False,
             reversescale = True,
             opacity = 0.7,
             size = 2,
-            colorbar = dict(
-                title='reputation'
-            ),
+            # colorbar = dict(
+            #     title='Reputation'
+            # ),
         ),
         type = 'scattergeo'
     ) ]
@@ -86,7 +103,7 @@ def get_scatter_map():
             subunitcolor = "rgb(255, 255, 255)",
             countrycolor = "rgb(255, 255, 255)",
             showlakes = True,
-            lakecolor = "rgb(0, 191, 255)",
+            lakecolor = "rgb(255, 255, 255)",
             showsubunits = True,
             showcountries = True,
             resolution = 50,
