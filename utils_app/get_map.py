@@ -37,10 +37,6 @@ def get_map():
                     color = 'rgb(180,180,180)',
                     width = 0.5
                 ) ),
-            colorbar = dict(
-                autotick = False,
-                tickprefix = '$',
-                title = 'GDP<br>Billions US$'),
         ) ]
 
     layout = dict(
@@ -49,12 +45,12 @@ def get_map():
             showframe = False,
             showcoastlines = False,
             projection = dict(
-                type = 'Mercator'
+                type = 'mercator'
             )
         )
     )
-
-    fig = dict(data=data, layout=layout)
-    return py.iplot(fig, validate=False, filename='d3-world-map' )
+    
+    return data, layout
+    #return py.iplot(fig, validate=False, filename='d3-world-map' )
 
 

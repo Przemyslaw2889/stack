@@ -4,7 +4,8 @@ import dash_html_components as html
 # import dash_table_experiments as dt
 import dash_table as dt
 from dash.dependencies import Input, Output
-from plotly.graph_objs import *
+import plotly.plotly as py
+import plotly.graph_objs as go
 import pandas as pd
 import numpy as np
 import os
@@ -61,7 +62,15 @@ app.layout = html.Div([
               [Input('tabs', 'value')])
 def render_content(tab):
     if tab == 'tab_map':
-        return html.H1("Hello")
+        data, layout = get_map()
+        return dcc.Graph(
+            figure=go.Figure(
+                data=data,
+                layout=layout
+            ),
+            style={'height': 500, 'width':1300},
+            id='world_map'
+        )
 
     elif tab == 'tab_topics':
         return html.Div(
