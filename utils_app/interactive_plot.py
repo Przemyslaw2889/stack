@@ -8,6 +8,7 @@ import numpy as np
 from datetime import datetime
 import dateutil
 
+
 sf_users = pd.read_csv(os.path.join("data","scifi.stackexchange.com", "Users.csv"))
 sf_posts = pd.read_csv(os.path.join("data","scifi.stackexchange.com", "Posts.csv"))
 m_users = pd.read_csv(os.path.join("data","movies.stackexchange.com", "Users.csv"))
@@ -65,63 +66,43 @@ available_indicators = pd.DataFrame({'TypeId':[1,2,3,4,5,6,7,8],\
 # available_indicators = ["Question", "Answer", "Orphaned tag wiki", "Tag wiki excerpt",\
 # "Tag wiki", "Moderator nomination", "Wiki placeholder","Privilege wiki"]
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+# external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+# app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-app.layout = html.Div([
 
-    html.H4('Does experience help you write better post?'),
-    html.Div(dcc.Graph(id='posts_inter')),
-    html.Div([
-        html.Label('Type of Post'),
-        dcc.Dropdown(
-                id='ques_ans',
-                options=[{'label': available_indicators.iloc[i,1], 'value': available_indicators.iloc[i,0]} for i in range(0,8)],
-                #options=[{'label': i, 'value': i} for i in available_indicators],
-                value=available_indicators.iloc[0,0]
-            )]),
-    html.Div([
-        html.Label('Post Creation Date'),
-        dcc.RangeSlider(
-        id = "year_slider",
-        min=min(YEARS),
-        max=max(YEARS),
-        value=[min(YEARS), max(YEARS)],
-        marks={str(year): str(year) for year in YEARS}
-        )])
+def get_df():
+    #  sorry about that, but I don't want 
+    global df
+    return df
 
-])
 
-@app.callback(
-    dash.dependencies.Output('posts_inter', 'figure'),
-    [dash.dependencies.Input('ques_ans', 'value'),
-    dash.dependencies.Input('year_slider', 'value')])
-def update_graph(post_type, year_value):
-    dff = df[(df.Year.between(year_value[0], year_value[1])) & (df.PostTypeId == post_type)]
-    return {
-        'data': [
-            go.Scatter(
-                x=dff[dff['Source'] == i]['Reputation'],
-                y=dff[dff['Source'] == i]['Score'],
-                text=dff[dff['Source'] == i]['Title'],
-                mode='markers',
-                opacity=0.7,
-                marker={
-                    'size': 15,
-                    'line': {'width': 0.5, 'color': 'white'}
-                },
-                name=i
-            ) for i in df.Source.unique()
-        ],
-        'layout': go.Layout(
-            xaxis={'type': 'log', 'title': 'User Reputation'},
-            yaxis={'title': 'Post Score'},
-            margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
-            legend={'x': 0, 'y': 1},
-            hovermode='closest'
-        )
-    }
+def get_interactive_graph_layout():
+
+    layout = html.Div([
+
+        html.H4('Does experience help you write better post?'),
+        html.Div(dcc.Graph(id='posts_inter')),
+        html.Div([
+            html.Label('Type of Post'),
+            dcc.Dropdown(
+                    id='ques_ans',
+                    options=[{'label': available_indicators.iloc[i,1], 'value': available_indicators.iloc[i,0]} for i in range(0,8)],
+                    #options=[{'label': i, 'value': i} for i in available_indicators],
+                    value=available_indicators.iloc[0,0]
+                )]),
+        html.Div([
+            html.Label('Post Creation Date'),
+            dcc.RangeSlider(
+            id = "year_slider",
+            min=min(YEARS),
+            max=max(YEARS),
+            value=[min(YEARS), max(YEARS)],
+            marks={str(year): str(year) for year in YEARS}
+            )])
+
+    ])
+    return layout
 
 
 if __name__ == '__main__':

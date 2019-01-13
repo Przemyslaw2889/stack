@@ -1,4 +1,6 @@
 """Plotting map"""
+import dash_core_components as dcc
+import plotly.graph_objs as go
 import pandas as pd
 import numpy as np
 import plotly
@@ -11,7 +13,20 @@ from matplotlib.colors import LinearSegmentedColormap
 users_scifi = pd.read_csv(os.path.join("preprocessed_data", "users_scifi_location.csv"))
 
 
+def get_map_layout():
+    data, layout = get_scattermapbox()
+    return dcc.Graph(
+        figure=go.Figure(
+            data=data,
+            layout=layout
+        ),
+        style={'height': 500, 'width':1300},
+        id='world_map'
+    )
+
+
 def get_scattermapbox():
+# https://gist.github.com/chriddyp/1a95f6582a5256db9847086232987bff The best example I've found
 
     scl = [0,"rgb(150,0,90)"],[0.125,"rgb(0, 0, 200)"],[0.25,"rgb(0, 25, 255)"],\
         [0.375,"rgb(0, 152, 255)"],[0.5,"rgb(44, 255, 150)"],[0.625,"rgb(151, 255, 0)"],\

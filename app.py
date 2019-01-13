@@ -11,14 +11,10 @@ import numpy as np
 import os
 import pickle
 
-from utils_app.get_map import get_map, get_scatter_map, get_scattermapbox
-from utils_app.lda import get_posts
+from utils_app.get_map import get_scatter_map, get_scattermapbox, get_map_layout
+from utils_app.lda import get_topics_layout
+from utils_app.interactive_plot import get_interactive_graph_layout, df
 
-
-# Preparing data
-users_scifi = pd.read_csv(os.path.join("preprocessed_data", "users_scifi_location.csv"))
-posts_topics = get_posts()
-posts_topics.Body = posts_topics.Body.str.slice(0, 75)
 
 # API key
 with open('api_key.txt') as f:
@@ -50,51 +46,65 @@ layout_table = dict(
 layout_table['font-size'] = '12'
 layout_table['margin-top'] = '20'
 
+
+
 app.layout = html.Div([
     dcc.Tabs(id="tabs", value='tab-1', children=[
-        dcc.Tab(label='Map', value='tab_map'),
-        dcc.Tab(label='Topic modelling', value='tab_topics'),
+        dcc.Tab(label='Map', value='tab_map',
+                children = get_map_layout()),
+        dcc.Tab(label='Topic modelling', value='tab_topics',
+                children = get_topics_layout()),
+        dcc.Tab(label='Graph', value='tab_graph',
+                children = get_interactive_graph_layout())
     ]),
-    html.Div(id='tabs-content')
+    html.Div(id='tabs-content'),
 ])
 
-@app.callback(Output('tabs-content', 'children'),
-              [Input('tabs', 'value')])
-def render_content(tab):
-    if tab == 'tab_map':
-        data, layout = get_scattermapbox()
-        return dcc.Graph(
-            figure=go.Figure(
-                data=data,
-                layout=layout
-            ),
-            style={'height': 500, 'width':1300},
-            id='world_map'
-        )
+# @app.callback(Output('tabs-content', 'children'),
+#               [Input('tabs', 'value'),
+#                Input('ques_ans', 'value'),
+#                Input('year_slider', 'value')])
+# def render_content(tab, post_type, year_value):
+#     if tab == 'tab_map':
+#         return get_map_layout()
 
-    elif tab == 'tab_topics':
-        return html.Div(
-                        [
-                        html.Div(
-                                [
-                                dt.DataTable(
-                                data=posts_topics.to_dict('rows'),
-                                columns=[{'id': c, 'name': c} for c in posts_topics.columns],
-                                style_table={'overflowX': 'scroll'}
-                                )
-                                ],
-                                style={'width':'50%',
-                                        'maxHeight': '500',
-                                        'overflowY': 'scroll'
-                                        },
-                            ),
-                        html.Div(
-                            [
-                                html.Img(id='image')
-                            ],
-                        )
-                    ]
-                )
-                
+#     elif tab == 'tab_topics':
+#         return get_topics_layout()
+
+#     elif tab == 'tab_graph':
+#         update_graph(post_type, year_value)
+
+
+@app.callback(
+    Output('posts_inter', 'figure'),
+    [Input('ques_ans', 'value'),
+     Input('year_slider', 'value')])
+def update_graph(post_type, year_value):
+    dff = df[(df.Year.between(year_value[0], year_value[1])) & (df.PostTypeId == post_type)]
+    return {
+        'data': [
+            go.Scatter(
+                x=dff[dff['Source'] == i]['Reputation'],
+                y=dff[dff['Source'] == i]['Score'],
+                text=dff[dff['Source'] == i]['Title'],
+                mode='markers',
+                opacity=0.7,
+                marker={
+                    'size': 15,
+                    'line': {'width': 0.5, 'color': 'white'}
+                },
+                name=i
+            ) for i in df.Source.unique()
+        ],
+        'layout': go.Layout(
+            xaxis={'type': 'log', 'title': 'User Reputation'},
+            yaxis={'title': 'Post Score'},
+            margin={'l': 40, 'b': 40, 't': 10, 'r': 10},
+            legend={'x': 0, 'y': 1},
+            hovermode='closest'
+        )
+    }
+
+
 if __name__ == '__main__':
     app.run_server(debug=True)
