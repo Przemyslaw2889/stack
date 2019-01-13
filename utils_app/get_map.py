@@ -17,6 +17,18 @@ def get_scattermapbox():
         [0.375,"rgb(0, 152, 255)"],[0.5,"rgb(44, 255, 150)"],[0.625,"rgb(151, 255, 0)"],\
         [0.75,"rgb(255, 234, 0)"],[0.875,"rgb(255, 111, 0)"],[1,"rgb(255, 0, 0)"]
 
+    def get_size(reputation):
+        if reputation < 10:
+            return 3
+        elif reputation < 100:
+            return 4
+        elif reputation < 1000:
+            return 5
+        elif reputation < 10_000:
+            return 6
+        else:
+            return 8
+
     df = users_scifi.sort_values("Reputation", ascending=True)
     df = df.groupby(['lat', 'lon']).first().reset_index()
 
@@ -25,10 +37,10 @@ def get_scattermapbox():
         'lon': df['lon'],
         'marker': {
             'color': df['Reputation'],
-            'size': 4,
+            'size': [get_size(reputation) for reputation in df['Reputation']],
             'opacity': 1,
             'colorscale': scl,
-            'reversescale': True,
+            'reversescale': False,
             'cmax': df['Reputation'].max(),
             'colorbar': dict(
                 title="Users Reputation"
