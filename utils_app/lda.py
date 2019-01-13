@@ -49,6 +49,7 @@ def get_top_words(n_top_words):
 
 posts_topics = _get_posts()
 max_post_length = 75
+Body = posts_topics.Body.copy()
 posts_topics.Body = posts_topics.Body.str.slice(0, max_post_length)
 
 
@@ -64,10 +65,15 @@ def get_topic_layout():
                     className="six columns",
                     children=[
                         html.Div(
+                            id='div-out'),
+                        html.Div(
                             children=dt.DataTable(
+                            id='datatable',
                             data=posts_topics.to_dict('rows'),
                             columns=[{'id': c, 'name': c} for c in posts_topics.columns],
-                            style_table={'overflowX': 'scroll'}
+                            style_table={'overflowX': 'scroll'},
+                            sorting=True,
+                            row_selectable='single'
                                 )
                             )
                     ]

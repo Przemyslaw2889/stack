@@ -32,9 +32,8 @@ def main():
     Pliki .csv zapisuja sie w folderze gdzie znajduja sie pliki .xml
     Moze sie troche mielic."""
     
-    save_xml_as_csv("gaming")
-    save_xml_as_csv("coffee")
-    save_xml_as_csv("beer")
+    save_xml_as_csv("movies")
+    save_xml_as_csv("writers")
 
 
 if __name__ == "__main__":

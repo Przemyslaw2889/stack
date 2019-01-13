@@ -12,7 +12,7 @@ import os
 import pickle
 
 from utils_app.get_map import get_scatter_map, get_scattermapbox, get_map_layout
-from utils_app.lda import get_topic_layout
+from utils_app.lda import get_topic_layout, Body, posts_topics
 from utils_app.interactive_plot import get_interactive_graph_layout, df
 from utils_app.countries_posts_interactive import get_countries_posts_layout, df_countries
 
@@ -37,6 +37,16 @@ app.layout = html.Div([
     ]),
     html.Div(id='tabs-content'),
 ])
+
+
+@app.callback(
+    Output('div-out','children'),
+    [Input('datatable', 'selected_rows')])
+def update_table(selected_rows):
+    if selected_rows:
+        print(selected_rows)
+        idx = selected_rows[0]
+        return html.H4(Body[idx] + '\nTopic: ' + str(posts_topics.iloc[idx]['topic']))
 
 
 @app.callback(
