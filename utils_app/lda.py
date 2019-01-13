@@ -36,7 +36,6 @@ def _get_top_words(model, feature_names, n_top_words):
     topic_words = [[], [], []]
     for topic_idx, topic in enumerate(model.components_):
         top_words = [feature_names[i] for i in topic.argsort()[:-n_top_words - 1:-1]]
-        print(top_words)
         topic_words[topic_idx].extend(top_words)
     return topic_words
 
@@ -56,7 +55,6 @@ posts_topics.Body = posts_topics.Body.str.slice(0, max_post_length)
 def get_topic_layout():
     img_src = 'https://miro.medium.com/max/882/1*pZo_IcxW1GVuH2vQKdoIMQ.jpeg'
     top_words = get_top_words(50)
-    print(top_words)
 
     layout = html.Div([
         html.Div(

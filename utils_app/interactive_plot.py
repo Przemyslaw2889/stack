@@ -75,7 +75,7 @@ def get_interactive_graph_layout():
 
     layout = html.Div([
 
-        html.H4('Does experience help you write better posts?'),
+        html.H4('Does experience helps you write better posts?'),
         html.Div(dcc.Graph(id='posts_inter')),
         html.Div([
             html.Label('Type of Post'),
