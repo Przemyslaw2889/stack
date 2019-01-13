@@ -71,17 +71,11 @@ available_indicators = pd.DataFrame({'TypeId':[1,2,3,4,5,6,7,8],\
 # app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 
-def get_df():
-    #  sorry about that, but I don't want 
-    global df
-    return df
-
-
 def get_interactive_graph_layout():
 
     layout = html.Div([
 
-        html.H4('Does experience help you write better post?'),
+        html.H4('Does experience help you write better posts?'),
         html.Div(dcc.Graph(id='posts_inter')),
         html.Div([
             html.Label('Type of Post'),

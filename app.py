@@ -12,7 +12,7 @@ import os
 import pickle
 
 from utils_app.get_map import get_scatter_map, get_scattermapbox, get_map_layout
-from utils_app.lda import get_topics_layout
+from utils_app.lda import get_topic_layout
 from utils_app.interactive_plot import get_interactive_graph_layout, df
 
 
@@ -53,7 +53,7 @@ app.layout = html.Div([
         dcc.Tab(label='Map', value='tab_map',
                 children = get_map_layout()),
         dcc.Tab(label='Topic modelling', value='tab_topics',
-                children = get_topics_layout()),
+                children = get_topic_layout()),
         dcc.Tab(label='Graph', value='tab_graph',
                 children = get_interactive_graph_layout())
     ]),

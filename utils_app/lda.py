@@ -1,4 +1,5 @@
 import dash_html_components as html
+import dash_core_components as dcc
 import dash_table as dt
 import pandas as pd
 import os
@@ -16,38 +17,6 @@ def _get_posts(colnames=None):
     return posts_scifi.loc[:, colnames]
 
 
-posts_topics = _get_posts()
-max_post_length = 75
-posts_topics.Body = posts_topics.Body.str.slice(0, max_post_length)
-
-
-def get_topics_layout():
-    img_src = 'https://miro.medium.com/max/882/1*pZo_IcxW1GVuH2vQKdoIMQ.jpeg'
-    return html.Div(
-                    [
-                    html.Div(
-                            [
-                            dt.DataTable(
-                            data=posts_topics.to_dict('rows'),
-                            columns=[{'id': c, 'name': c} for c in posts_topics.columns],
-                            style_table={'overflowX': 'scroll'}
-                            )
-                            ],
-                            style={'width':'50%',
-                                    'maxHeight': '500',
-                                    'overflowY': 'scroll'
-                                    },
-                        ),
-                    html.Div(
-                        [
-                            html.Img(id='image',
-                                    src=img_src)
-                        ],
-                    )
-                ]
-            )
-
-
 def _get_lda_and_cv():
     """Returns lda model object and cv object (see lda_topic_modelling.ipynb)"""
     with open(model_path, 'rb') as f:
@@ -63,7 +32,62 @@ def _print_top_words(model, feature_names, n_top_words):
         print(message + "\n")
     print()
 
+def _get_top_words(model, feature_names, n_top_words):
+    topic_words = [[], [], []]
+    for topic_idx, topic in enumerate(model.components_):
+        top_words = [feature_names[i] for i in topic.argsort()[:-n_top_words - 1:-1]]
+        print(top_words)
+        topic_words[topic_idx].extend(top_words)
+    return topic_words
 
-def print_topic_words(n_top_words):
+
+def get_top_words(n_top_words):
     lda, cv = _get_lda_and_cv()
-    _print_top_words(lda, cv, n_top_words)
+    topic_words = _get_top_words(lda, cv.get_feature_names(), n_top_words)
+    df = pd.DataFrame(list(zip(*topic_words)), columns=["topic 1", "topic 2", "topic 3"])
+    return df
+
+
+posts_topics = _get_posts()
+max_post_length = 75
+posts_topics.Body = posts_topics.Body.str.slice(0, max_post_length)
+
+
+def get_topic_layout():
+    img_src = 'https://miro.medium.com/max/882/1*pZo_IcxW1GVuH2vQKdoIMQ.jpeg'
+    top_words = get_top_words(50)
+    print(top_words)
+
+    layout = html.Div([
+        html.Div(
+            className="row",
+            children=[
+                html.Div(
+                    className="six columns",
+                    children=[
+                        html.Div(
+                            children=dt.DataTable(
+                            data=posts_topics.to_dict('rows'),
+                            columns=[{'id': c, 'name': c} for c in posts_topics.columns],
+                            style_table={'overflowX': 'scroll'}
+                                )
+                            )
+                    ]
+                ),
+                html.Div(
+                    className="six columns",
+                    children=html.Div([
+                        html.Img(id='image',
+                                    src=img_src),
+                        dt.DataTable(
+                            data=top_words.to_dict('rows'),
+                            columns=[{'id': c, 'name': c} for c in top_words.columns],
+                            style_table={'overflowX': 'scroll'}
+                                )
+                    ])
+                )
+            ]
+        )
+    ])
+    return layout
+
