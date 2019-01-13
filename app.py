@@ -11,7 +11,7 @@ import numpy as np
 import os
 import pickle
 
-from utils_app.get_map import get_map, get_scatter_map
+from utils_app.get_map import get_map, get_scatter_map, get_scattermapbox
 from utils_app.lda import get_posts
 
 
@@ -62,7 +62,7 @@ app.layout = html.Div([
               [Input('tabs', 'value')])
 def render_content(tab):
     if tab == 'tab_map':
-        data, layout = get_scatter_map()
+        data, layout = get_scattermapbox()
         return dcc.Graph(
             figure=go.Figure(
                 data=data,
@@ -90,7 +90,7 @@ def render_content(tab):
                             ),
                         html.Div(
                             [
-                                html.H1("Hello")
+                                html.Img(id='image')
                             ],
                         )
                     ]

@@ -10,18 +10,44 @@ from matplotlib.colors import LinearSegmentedColormap
 
 users_scifi = pd.read_csv(os.path.join("preprocessed_data", "users_scifi_location.csv"))
 
-def _colormap_to_colorscale(cmap):
-    #function that transforms a matplotlib colormap to a Plotly colorscale
-    return [ [k*0.1, colors.rgb2hex(cmap(k*0.1))] for k in range(11)]
 
-def _colorscale_from_list(alist, name): 
-    # Defines a colormap, and the corresponding Plotly colorscale from the list alist
-    # alist=the list of basic colors
-    # name is the name of the corresponding matplotlib colormap
-    
-    cmap = LinearSegmentedColormap.from_list(name, alist)
-    colorscale=colormap_to_colorscale(cmap)
-    return cmap, colorscale
+def get_scattermapbox():
+
+    scl = [0,"rgb(150,0,90)"],[0.125,"rgb(0, 0, 200)"],[0.25,"rgb(0, 25, 255)"],\
+        [0.375,"rgb(0, 152, 255)"],[0.5,"rgb(44, 255, 150)"],[0.625,"rgb(151, 255, 0)"],\
+        [0.75,"rgb(255, 234, 0)"],[0.875,"rgb(255, 111, 0)"],[1,"rgb(255, 0, 0)"]
+
+    df = users_scifi.sort_values("Reputation", ascending=True)
+    df = df.groupby(['lat', 'lon']).first().reset_index()
+
+    data = [{
+        'lat': df['lat'],
+        'lon': df['lon'],
+        'marker': {
+            'color': df['Reputation'],
+            'size': 4,
+            'opacity': 1,
+            'colorscale': scl,
+            'reversescale': True,
+            'cmax': df['Reputation'].max(),
+            'colorbar': dict(
+                title="Users Reputation"
+            )
+        },
+        'text': df['DisplayName'].astype(str) + ', ' + df['Reputation'].astype(str),
+        # 'customdata': df['storenum'],
+        'type': 'scattermapbox'
+    }]
+    layout = {
+        'mapbox': {
+            'accesstoken': 'pk.eyJ1IjoiY2hyaWRkeXAiLCJhIjoiY2ozcGI1MTZ3MDBpcTJ3cXR4b3owdDQwaCJ9.8jpMunbKjdq1anXwU5gxIw'
+        },
+        'hovermode': 'closest',
+        'margin': {'l': 0, 'r': 0, 'b': 0, 't': 0}
+    }
+
+    return data, layout
+
 
 def get_map():
     with open('api_key.txt') as f:
@@ -72,6 +98,7 @@ def get_map():
 def get_scatter_map():
 
     df = users_scifi.sort_values("Reputation", ascending=True)
+    df = df.groupby(['lat', 'lon']).first().reset_index()
 
     scl = [0,"rgb(150,0,90)"],[0.125,"rgb(0, 0, 200)"],[0.25,"rgb(0, 25, 255)"],\
         [0.375,"rgb(0, 152, 255)"],[0.5,"rgb(44, 255, 150)"],[0.625,"rgb(151, 255, 0)"],\
@@ -81,17 +108,11 @@ def get_scatter_map():
         lat = df['lat'],
         lon = df['lon'],
         text = df['DisplayName'].astype(str) + ', ' + df['Reputation'].astype(str),
-        marker = dict(
-            color = df['Reputation'].sort_values(ascending=True),
-            colorscale = scl,
-            autocolorscale = False,
-            reversescale = True,
-            opacity = 0.7,
-            size = 2,
-            # colorbar = dict(
-            #     title='Reputation'
-            # ),
-        ),
+        marker =  {
+                'color': df['Reputation'],
+                'size': 8,
+                'opacity': 0.6
+            },
         type = 'scattergeo'
     ) ]
 
