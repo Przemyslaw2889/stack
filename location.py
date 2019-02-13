@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import requests
-from utils import load_scifi_table
 
 
 def return_na(get_country, get_city):
